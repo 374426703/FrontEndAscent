@@ -1,5 +1,5 @@
 //定制请求的实例
-
+import { ElMessage } from 'element-plus'
 //导入axios  npm install axios
 import axios from 'axios';
 //定义一个变量,记录公共的前缀  ,  baseURL
@@ -10,10 +10,27 @@ const instance = axios.create({baseURL})
 //添加响应拦截器
 instance.interceptors.response.use(
     result=>{
-        return result.data;
+       //判断业务状态码
+        if(result.data.code===0){
+            return result.data;
+        }
+
+        //操作失败
+        //alert(result.data.msg?result.data.msg:'服务异常')
+        ElMessage.error(result.data.msg?result.data.msg:'服务异常')
+        //异步操作的状态转换为失败
+        return Promise.reject(result.data)
     },
+    //只有在响应失败的时候才会进入到这个函数中，如网络异常,服务器异常,请求超时等
     err=>{
-        alert('服务异常');
+        //判断响应状态码,如果为401,则证明未登录,提示请登录,并跳转到登录页面
+        if(err.response.status===401){
+            ElMessage.error('请先登录')
+            router.push('/login')
+        }else{
+            ElMessage.error('服务异常')
+        }
+       
         return Promise.reject(err);//异步的状态转化成失败的状态
     }
 )
