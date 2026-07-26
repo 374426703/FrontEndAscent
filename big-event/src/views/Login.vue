@@ -38,6 +38,7 @@ const rules = {
     ]
 }
 
+
 //调用后台接口,完成注册
 import { userRegisterService, userLoginService} from '@/api/user.js'
 const register = async () => {
@@ -58,9 +59,10 @@ const register = async () => {
 //表单数据校验
 
 
+//添加路由跳转功能,登录成功后跳转到首页
+import {useRouter} from 'vue-router'
+const router = useRouter()
 // import {useTokenStore} from '@/stores/token.js'
-// import {useRouter} from 'vue-router'
-// const router = useRouter()
 // const tokenStore = useTokenStore();
 
 //登录函数
@@ -76,8 +78,8 @@ const login =async ()=>{
    ElMessage.success(result.msg ? result.msg : '登录成功')
    //把得到的token存储到pinia中
 //    tokenStore.setToken(result.data)
-   //跳转到首页 路由完成跳转
-//    router.push('/')
+//    跳转到首页 路由完成跳转
+   router.push('/')
 }
 
 //定义函数,清空数据模型的数据

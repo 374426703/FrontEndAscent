@@ -13,6 +13,7 @@ import avatar from '@/assets/default.png'
 </script>
 
 <template>
+    <!-- element-plus的容器 -->
     <el-container class="layout-container">
         <!-- 左侧菜单 -->
         <el-aside width="200px">
