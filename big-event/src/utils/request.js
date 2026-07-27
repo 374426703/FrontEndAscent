@@ -6,6 +6,8 @@ import axios from 'axios';
 
 import {useTokenStore} from '@/stores/token.js'
 
+
+
 const baseURL = '/api';
 const instance = axios.create({baseURL})
 
@@ -26,6 +28,9 @@ instance.interceptors.request.use(
         return Promise.reject(err);
     }
 )
+
+import router from '@/router/index.js'
+
 
 //添加响应拦截器
 instance.interceptors.response.use(
