@@ -3,9 +3,29 @@ import { ElMessage } from 'element-plus'
 //导入axios  npm install axios
 import axios from 'axios';
 //定义一个变量,记录公共的前缀  ,  baseURL
+
+import {useTokenStore} from '@/stores/token.js'
+
 const baseURL = '/api';
 const instance = axios.create({baseURL})
 
+
+//添加请求拦截器
+instance.interceptors.request.use(
+    config=>{
+        //在请求头中添加token
+        //获取pinia中token的值
+        const tokenStore = useTokenStore();
+        if(tokenStore.token){
+            config.headers.Authorization = tokenStore.token
+        }
+
+        return config;
+    },
+    err=>{
+        return Promise.reject(err);
+    }
+)
 
 //添加响应拦截器
 instance.interceptors.response.use(

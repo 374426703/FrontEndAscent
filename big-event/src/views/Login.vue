@@ -62,8 +62,9 @@ const register = async () => {
 //添加路由跳转功能,登录成功后跳转到首页
 import {useRouter} from 'vue-router'
 const router = useRouter()
-// import {useTokenStore} from '@/stores/token.js'
-// const tokenStore = useTokenStore();
+//定义使用store的函数,获取tokenStore对象
+import {useTokenStore} from '@/stores/token.js'
+const tokenStore = useTokenStore();
 
 //登录函数
 const login =async ()=>{
@@ -77,7 +78,7 @@ const login =async ()=>{
 //    alert(result.msg? result.msg : '登录成功')
    ElMessage.success(result.msg ? result.msg : '登录成功')
    //把得到的token存储到pinia中
-//    tokenStore.setToken(result.data)
+   tokenStore.setToken(result.data)
 //    跳转到首页 路由完成跳转
    router.push('/')
 }
