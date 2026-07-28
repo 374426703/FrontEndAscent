@@ -6,3 +6,8 @@ export const articleCategoryListService = () => {
         method: 'GET'
     })
 }
+
+//添加文章分类
+export const articleCategoryAddService = (categoryModel) => {
+    return request.post('/category', categoryModel)
+}
