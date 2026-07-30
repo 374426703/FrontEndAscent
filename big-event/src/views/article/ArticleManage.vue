@@ -79,20 +79,47 @@ const pageSize = ref(3)//每页条数
 //当每页条数发生了变化，调用此函数
 const onSizeChange = (size) => {
     pageSize.value = size
+    getArticles()
 }
 //当前页码发生变化，调用此函数
 const onCurrentChange = (num) => {
     pageNum.value = num
+    getArticles()
 }
 
 //文章列表查询
-import { articleCategoryListService } from '@/api/article.js'
+import { articleCategoryListService ,articleListService} from '@/api/article.js'
 const getArticleCategoryList = async () => {
     //获取所有分类
     let resultC = await articleCategoryListService();
     categorys.value = resultC.data
 }
 getArticleCategoryList();
+
+const getArticles = async () => {
+    let params = {
+        pageNum: pageNum.value,
+        pageSize: pageSize.value,
+        categoryId: categoryId.value ? categoryId.value : null,
+        state: state.value ? state.value : null
+    }
+    let result = await articleListService(params);
+    //渲染列表数据
+    articles.value = result.data.items
+    //为列表中添加categoryName属性
+    for(let i=0;i<articles.value.length;i++){
+        let article = articles.value[i];
+        for(let j=0;j<categorys.value.length;j++){
+            if(article.categoryId===categorys.value[j].id){
+                article.categoryName=categorys.value[j].categoryName
+            }
+        }
+    }
+    //渲染总条数
+    total.value=result.data.total
+}
+getArticles()
+
 
 </script>
 <template>
