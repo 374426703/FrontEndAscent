@@ -88,7 +88,7 @@ const onCurrentChange = (num) => {
 }
 
 //文章分类回显
-import { articleCategoryListService, articleListService } from '@/api/article.js'
+import { articleCategoryListService, articleListService, articleAddService } from '@/api/article.js'
 const getArticleCategoryList = async () => {
     //获取所有分类
     let resultC = await articleCategoryListService();
@@ -142,7 +142,25 @@ const tokenStore = useTokenStore();
 //上传图片成功回调
 const uploadSuccess = (img) => {
     //img就是后台响应的数据，格式为：{code:状态码，message：提示信息，data: 图片的存储地址}
-    articleModel.value.coverImg=img.data
+    articleModel.value.coverImg = img.data
+}
+import { ElMessage } from 'element-plus'
+
+//添加文章
+const addArticle = async (clickState)=>{
+    //把发布状态赋值给数据模型
+    articleModel.value.state = clickState;
+
+    //调用接口
+    let result = await articleAddService(articleModel.value);
+
+    ElMessage.success(result.msg? result.msg:'添加成功');
+
+    //让抽屉消失
+    visibleDrawer.value = false;
+
+    //刷新当前列表
+    getArticles()
 }
 
 
@@ -180,7 +198,7 @@ const uploadSuccess = (img) => {
         <!-- 文章列表 -->
         <el-table :data="articles" style="width: 100%">
             <el-table-column label="文章标题" width="400" prop="title"></el-table-column>
-            <el-table-column label="分类" prop="categoryId"></el-table-column>
+            <el-table-column label="分类" prop="categoryName"></el-table-column>
             <el-table-column label="发表时间" prop="createTime"> </el-table-column>
             <el-table-column label="状态" prop="state"></el-table-column>
             <el-table-column label="操作" width="100">
@@ -211,9 +229,9 @@ const uploadSuccess = (img) => {
                         </el-option>
                     </el-select>
                 </el-form-item>
-               <el-form-item label="文章封面">
+                <el-form-item label="文章封面">
 
-                <!-- 将来当点击+图标，选择本地图片后，el-upload这个组件会自动发送请求，把图片上传到指定的服务器上，而不需要我们自己使用axios发送异步请求，所以需要给el-upload标签添加一些属性，控制请求的发送
+                    <!-- 将来当点击+图标，选择本地图片后，el-upload这个组件会自动发送请求，把图片上传到指定的服务器上，而不需要我们自己使用axios发送异步请求，所以需要给el-upload标签添加一些属性，控制请求的发送
 
                 auto-upload:是否自动上传
 
@@ -224,13 +242,9 @@ const uploadSuccess = (img) => {
                 headers: 设置上传的请求头
 
                 on-success: 上传成功的回调函数 -->
-                 
-                    <el-upload class="avatar-uploader" :auto-upload="true" :show-file-list="false"
-                    action="/api/upload"
-                    name="file"
-                    :headers="{'Authorization':tokenStore.token}"
-                    :on-success="uploadSuccess"
-                    >
+
+                    <el-upload class="avatar-uploader" :auto-upload="true" :show-file-list="false" action="/api/upload"
+                        name="file" :headers="{ 'Authorization': tokenStore.token }" :on-success="uploadSuccess">
                         <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar" />
                         <el-icon v-else class="avatar-uploader-icon">
                             <Plus />
@@ -246,8 +260,8 @@ const uploadSuccess = (img) => {
                     </div>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary">发布</el-button>
-                    <el-button type="info">草稿</el-button>
+                    <el-button type="primary" @click="addArticle('已发布')">发布</el-button>
+                    <el-button type="info" @click="addArticle('草稿')">草稿</el-button>
                 </el-form-item>
             </el-form>
         </el-drawer>
