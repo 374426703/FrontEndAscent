@@ -32,10 +32,10 @@ const categorys = ref([
 ])
 
 //用户搜索时选中的分类id
-const categoryId=ref('')
+const categoryId = ref('')
 
 //用户搜索时选中的发布状态
-const state=ref('')
+const state = ref('')
 
 //文章列表数据模型
 const articles = ref([
@@ -87,8 +87,8 @@ const onCurrentChange = (num) => {
     getArticles()
 }
 
-//文章列表查询
-import { articleCategoryListService ,articleListService} from '@/api/article.js'
+//文章分类回显
+import { articleCategoryListService, articleListService } from '@/api/article.js'
 const getArticleCategoryList = async () => {
     //获取所有分类
     let resultC = await articleCategoryListService();
@@ -96,6 +96,7 @@ const getArticleCategoryList = async () => {
 }
 getArticleCategoryList();
 
+//文章列表查询
 const getArticles = async () => {
     let params = {
         pageNum: pageNum.value,
@@ -107,16 +108,16 @@ const getArticles = async () => {
     //渲染列表数据
     articles.value = result.data.items
     //为列表中添加categoryName属性
-    for(let i=0;i<articles.value.length;i++){
+    for (let i = 0; i < articles.value.length; i++) {
         let article = articles.value[i];
-        for(let j=0;j<categorys.value.length;j++){
-            if(article.categoryId===categorys.value[j].id){
-                article.categoryName=categorys.value[j].categoryName
+        for (let j = 0; j < categorys.value.length; j++) {
+            if (article.categoryId === categorys.value[j].id) {
+                article.categoryName = categorys.value[j].categoryName
             }
         }
     }
     //渲染总条数
-    total.value=result.data.total
+    total.value = result.data.total
 }
 getArticles()
 
@@ -136,11 +137,7 @@ getArticles()
         <el-form inline>
             <el-form-item label="文章分类：">
                 <el-select placeholder="请选择" v-model="categoryId">
-                    <el-option 
-                        v-for="c in categorys" 
-                        :key="c.id" 
-                        :label="c.categoryName"
-                        :value="c.id">
+                    <el-option v-for="c in categorys" :key="c.id" :label="c.categoryName" :value="c.id">
                     </el-option>
                 </el-select>
             </el-form-item>
@@ -152,8 +149,8 @@ getArticles()
                 </el-select>
             </el-form-item>
             <el-form-item>
-                <el-button type="primary">搜索</el-button>
-                <el-button>重置</el-button>
+                <el-button type="primary" @click="getArticles">搜索</el-button>
+                <el-button @click="categoryId = ''; state = ''">重置</el-button>
             </el-form-item>
         </el-form>
         <!-- 文章列表 -->
@@ -173,7 +170,7 @@ getArticles()
             </template>
         </el-table>
         <!-- 分页条 -->
-        <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="[3, 5 ,10, 15]"
+        <el-pagination v-model:current-page="pageNum" v-model:page-size="pageSize" :page-sizes="[3, 5, 10, 15]"
             layout="jumper, total, sizes, prev, pager, next" background :total="total" @size-change="onSizeChange"
             @current-change="onCurrentChange" style="margin-top: 20px; justify-content: flex-end" />
     </el-card>
