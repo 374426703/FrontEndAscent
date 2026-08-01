@@ -136,6 +136,14 @@ const articleModel = ref({
     state: ''
 })
 
+import { useTokenStore } from '@/stores/token.js'
+const tokenStore = useTokenStore();
+
+//上传图片成功回调
+const uploadSuccess = (img) => {
+    //img就是后台响应的数据，格式为：{code:状态码，message：提示信息，data: 图片的存储地址}
+    articleModel.value.coverImg=img.data
+}
 
 
 </script>
@@ -203,9 +211,26 @@ const articleModel = ref({
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="文章封面">
+               <el-form-item label="文章封面">
 
-                    <el-upload class="avatar-uploader" :auto-upload="false" :show-file-list="false">
+                <!-- 将来当点击+图标，选择本地图片后，el-upload这个组件会自动发送请求，把图片上传到指定的服务器上，而不需要我们自己使用axios发送异步请求，所以需要给el-upload标签添加一些属性，控制请求的发送
+
+                auto-upload:是否自动上传
+
+                action: 服务器接口路径
+
+                name: 上传的文件字段名
+    
+                headers: 设置上传的请求头
+
+                on-success: 上传成功的回调函数 -->
+                 
+                    <el-upload class="avatar-uploader" :auto-upload="true" :show-file-list="false"
+                    action="/api/upload"
+                    name="file"
+                    :headers="{'Authorization':tokenStore.token}"
+                    :on-success="uploadSuccess"
+                    >
                         <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar" />
                         <el-icon v-else class="avatar-uploader-icon">
                             <Plus />
