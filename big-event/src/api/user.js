@@ -29,3 +29,11 @@ export const userInfoGetService = ()=>{
 export const userInfoUpdateService = (userInfoData)=>{
    return request.put('/user/update',userInfoData)
 }
+
+//修改头像
+export const userAvatarUpdateService = (avatarUrl)=>{
+    const params = new URLSearchParams();
+    params.append('avatarUrl',avatarUrl)
+    return request.patch('/user/updateAvatar',params)
+}
+
