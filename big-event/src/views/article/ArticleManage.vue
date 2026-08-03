@@ -88,7 +88,7 @@ const onCurrentChange = (num) => {
 }
 
 //文章分类回显
-import { articleCategoryListService, articleListService, articleAddService } from '@/api/article.js'
+import { articleCategoryListService, articleListService, articleAddService, articleUpdateService, articleDeleteService } from '@/api/article.js'
 const getArticleCategoryList = async () => {
     //获取所有分类
     let resultC = await articleCategoryListService();
@@ -144,17 +144,30 @@ const uploadSuccess = (img) => {
     //img就是后台响应的数据，格式为：{code:状态码，message：提示信息，data: 图片的存储地址}
     articleModel.value.coverImg = img.data
 }
-import { ElMessage } from 'element-plus'
+import { ElMessage ,ElMessageBox} from 'element-plus'
+
+const isEdit = ref(false)
 
 //添加文章
-const addArticle = async (clickState)=>{
+const addArticle = async (clickState) => {
     //把发布状态赋值给数据模型
     articleModel.value.state = clickState;
 
     //调用接口
+    if (isEdit.value) {
+        //编辑文章
+        let result = await articleUpdateService(articleModel.value);
+        ElMessage.success(result.msg ? result.msg : '修改成功');
+        //让抽屉消失
+        visibleDrawer.value = false;
+        //刷新当前列表
+        getArticles()
+        isEdit.value = false;
+        return;
+    }
     let result = await articleAddService(articleModel.value);
 
-    ElMessage.success(result.msg? result.msg:'添加成功');
+    ElMessage.success(result.msg ? result.msg : '添加成功');
 
     //让抽屉消失
     visibleDrawer.value = false;
@@ -163,6 +176,55 @@ const addArticle = async (clickState)=>{
     getArticles()
 }
 
+//数据回显函数
+
+const show = (row) => {
+    articleModel.value = { ...row }
+}
+
+const editArticle = (row) => {
+    //弹出抽屉
+    visibleDrawer.value = true;
+    //数据回显
+    show(row);
+    //设置编辑状态为true
+    isEdit.value = true;
+}
+
+//删除文章
+const deleteArticle = async (row) => {
+    //调用接口
+    let result = await articleDeleteService(row.id);
+    ElMessage.success(result.msg ? result.msg : '删除成功');
+    //刷新当前列表
+    getArticles()
+}
+
+const openDelete = (row) => {
+    ElMessageBox.confirm(
+        '你确认删除吗？',
+        '温馨提示',
+        {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning',
+        }
+    )
+        .then(async () => {
+            //用户点击了确认
+            let result = await deleteArticle(row);
+            Message.success(result.msg ? result.msg : '删除成功');
+            //刷新当前列表
+            getArticles();
+        })
+        .catch(() => {
+            //用户点击了取消
+            ElMessage({
+                type: 'info',
+                message: '取消删除',
+            })
+        })
+}
 
 </script>
 <template>
@@ -195,6 +257,7 @@ const addArticle = async (clickState)=>{
                 <el-button @click="categoryId = ''; state = ''">重置</el-button>
             </el-form-item>
         </el-form>
+
         <!-- 文章列表 -->
         <el-table :data="articles" style="width: 100%">
             <el-table-column label="文章标题" width="400" prop="title"></el-table-column>
@@ -203,8 +266,9 @@ const addArticle = async (clickState)=>{
             <el-table-column label="状态" prop="state"></el-table-column>
             <el-table-column label="操作" width="100">
                 <template #default="{ row }">
-                    <el-button :icon="Edit" circle plain type="primary"></el-button>
-                    <el-button :icon="Delete" circle plain type="danger"></el-button>
+                    <el-button :icon="Edit" circle plain type="primary" @click="editArticle(row)">
+                    </el-button>
+                    <el-button :icon="Delete" circle plain type="danger" @click="openDelete(row)" />
                 </template>
             </el-table-column>
             <template #empty>
@@ -264,6 +328,8 @@ const addArticle = async (clickState)=>{
                     <el-button type="info" @click="addArticle('草稿')">草稿</el-button>
                 </el-form-item>
             </el-form>
+
+
         </el-drawer>
     </el-card>
 

@@ -31,3 +31,13 @@ export const articleListService = (params) => {
 export const articleAddService = (articleModel)=>{
     return request.post('/article',articleModel)
 }
+
+//修改文章
+export const articleUpdateService = (articleModel)=>{
+    return request.post('/article/update',articleModel)
+}
+
+//删除文章
+export const articleDeleteService = ()=>{
+    return request.get('/article/delete')
+}
