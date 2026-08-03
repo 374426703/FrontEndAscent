@@ -148,11 +148,21 @@ import { ElMessage ,ElMessageBox} from 'element-plus'
 
 const isEdit = ref(false)
 
+//重置表单到初始状态
+const clear = () => {
+  // 不要直接 = {} 覆盖整个对象！逐个属性清空
+  articleModel.value.title = ''
+  articleModel.value.categoryId = ''
+  articleModel.value.coverImg = ''
+  articleModel.value.content = '请输入内容' // 单独清空content，富文本可以正常感知
+  articleModel.value.state = ''
+  isEdit.value = false
+}
+
 //添加文章
 const addArticle = async (clickState) => {
     //把发布状态赋值给数据模型
     articleModel.value.state = clickState;
-
     //调用接口
     if (isEdit.value) {
         //编辑文章
@@ -165,6 +175,7 @@ const addArticle = async (clickState) => {
         isEdit.value = false;
         return;
     }
+
     let result = await articleAddService(articleModel.value);
 
     ElMessage.success(result.msg ? result.msg : '添加成功');
@@ -191,15 +202,8 @@ const editArticle = (row) => {
     isEdit.value = true;
 }
 
-//删除文章
-const deleteArticle = async (row) => {
-    //调用接口
-    let result = await articleDeleteService(row.id);
-    ElMessage.success(result.msg ? result.msg : '删除成功');
-    //刷新当前列表
-    getArticles()
-}
 
+//删除文章
 const openDelete = (row) => {
     ElMessageBox.confirm(
         '你确认删除吗？',
@@ -212,8 +216,8 @@ const openDelete = (row) => {
     )
         .then(async () => {
             //用户点击了确认
-            let result = await deleteArticle(row);
-            Message.success(result.msg ? result.msg : '删除成功');
+            let result = await articleDeleteService(row.id);
+            ElMessage.success(result.msg ? result.msg : '删除成功');
             //刷新当前列表
             getArticles();
         })
@@ -233,7 +237,7 @@ const openDelete = (row) => {
             <div class="header">
                 <span>文章管理</span>
                 <div class="extra">
-                    <el-button type="primary" @click="visibleDrawer = true">添加文章</el-button>
+                    <el-button type="primary" @click="clear();visibleDrawer = true">添加文章</el-button>
                 </div>
             </div>
         </template>
@@ -281,7 +285,7 @@ const openDelete = (row) => {
             @current-change="onCurrentChange" style="margin-top: 20px; justify-content: flex-end" />
 
         <!-- 抽屉 -->
-        <el-drawer v-model="visibleDrawer" title="添加文章" direction="rtl" size="50%">
+        <el-drawer v-model="visibleDrawer" title="添加文章" direction="rtl"size="50%">
             <!-- 添加文章表单 -->
             <el-form :model="articleModel" label-width="100px">
                 <el-form-item label="文章标题">

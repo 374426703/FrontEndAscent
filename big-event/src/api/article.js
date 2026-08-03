@@ -38,6 +38,6 @@ export const articleUpdateService = (articleModel)=>{
 }
 
 //删除文章
-export const articleDeleteService = ()=>{
-    return request.get('/article/delete')
+export const articleDeleteService = (articleId)=>{
+    return request.get('/article/delete' + '?articleId=' + articleId)
 }
